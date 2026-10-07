@@ -3,21 +3,27 @@ import google.generativeai as genai
 
 st.set_page_config(page_title="Lamar AI", page_icon="🤖")
 
-# هنا الاسم الكبير والفخم الذي سيظهر للناس بأعلى الموقع!
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
+model = genai.GenerativeModel('gemini-3.8-flash')
+
 st.title("🤖 Lamar AI")
-st.write("مرحباً بكِ في تطبيقي الخاص للذكاء الاصطناعي!")
+# هنا العبارة الجديدة الفخمة والمرحبة!
+st.write(" أهلاً بكِ! أنا هنا للحديث والدردشة معك  .")
+ 
 
-# إعداد مربع الدردشة والذاكرة
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+if "chat" not in st.session_state:
+    st.session_state.chat = model.start_chat(history=[])
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# مربع كتابة الرسائل للمستخدمين
 user_msg = st.text_input("اكتبي رسالتكِ هنا وسأجيبكِ فوراً:")
 
 if user_msg:
-    st.session_state.chat_history.append(f"أنتِ: {user_msg}")
-    st.session_state.chat_history.append("🤖 بوت Lamar AI: أهلاً بكِ! موقع الويب الخاص بكِ قيد التشغيل والربط الآن بنجاح!")
+    response = st.session_state.chat.send_message(user_msg)
+    st.session_state.messages.append(f"أنتِ: {user_msg}")
+    st.session_state.messages.append(f"🤖 بوت Lamar AI: {response.text}")
 
-# عرض الدردشة بشكل أنيق
-for message in st.session_state.chat_history:
+for message in st.session_state.messages:
     st.write(message)
